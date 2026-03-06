@@ -1,0 +1,123 @@
+.navbar {
+  border-bottom: 1px solid #eee;
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+/* Navigation */
+
+.nav {
+  display: flex;
+  gap: 25px;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #333;
+}
+
+/* Search */
+
+.searchContainer {
+  position: relative;
+  width: 220px;
+}
+
+.input {
+  width: 100%;
+  padding: 8px 60px 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+/* Search icon */
+
+.searchIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+/* Clear button */
+
+.clearButton {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 20px; 
+  height: 20px;
+
+  border-radius: 50%;
+  border: none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #e5e7eb;
+  cursor: pointer;
+}
+
+.clearButton svg {
+  width: 10px;
+  height: 10px;
+}
+
+.clearButton:hover {
+  background: #d1d5db;
+}
+
+/* Menu button */
+
+.menuButton {
+  display: none;
+  border: none;
+  background: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* Responsive */
+
+@media (max-width: 900px) {
+
+  .nav {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: white;
+
+    flex-direction: column;
+    padding: 20px;
+    display: none;
+  }
+
+  .active {
+    display: flex;
+  }
+
+  .menuButton {
+    display: block;
+  }
+}
