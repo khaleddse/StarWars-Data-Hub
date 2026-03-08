@@ -8,6 +8,7 @@ export const CATEGORY_FIELDS: Record<Category, { label: string; key: string }[]>
     { label: "Augenfarbe", key: "eye_color" },
     { label: "Geburtsjahr", key: "birth_year" },
     { label: "Geschlecht", key: "gender" },
+    { label: "Heimatplanet", key: "homeworld" },
   ],
 
   planets: [
@@ -17,6 +18,7 @@ export const CATEGORY_FIELDS: Record<Category, { label: string; key: string }[]>
     { label: "Durchmesser", key: "diameter" },
     { label: "Rotation", key: "rotation_period" },
     { label: "Orbit", key: "orbital_period" },
+
   ],
 
   films: [

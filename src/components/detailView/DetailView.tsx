@@ -4,9 +4,11 @@ import Chips from "../ui/Chips";
 import { useNavigate } from "react-router-dom";
 import { type Category, type DetailViewProps } from "../../types";
 import { CATEGORY_FIELDS } from "./DetailViewConfig";
-import { fetchRelatedResources, getArrayKeys, parseSwapiUrl } from "../../helper/utils";
-
-
+import {
+  fetchRelatedResources,
+  getArrayKeys,
+  parseSwapiUrl,
+} from "../../helper/utils";
 
 const ALLOWED_NAVIGATION: Category[] = ["people", "planets", "films"];
 
@@ -21,10 +23,14 @@ const DetailView: React.FC<DetailViewProps> = ({
   const navigate = useNavigate();
 
   const [relatedData, setRelatedData] = useState<Record<string, any[]>>({});
+  const [homeworld, setHomeworld] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const relatedKeys = useMemo(() => getArrayKeys(details), [details]);
 
+  /*
+   Fetch related array resources (films, species, etc.)
+  */
   useEffect(() => {
     if (!relatedKeys.length) return;
 
@@ -57,6 +63,25 @@ const DetailView: React.FC<DetailViewProps> = ({
     };
   }, [relatedKeys, details]);
 
+  /*
+   Fetch homeworld (single resource)
+  */
+  useEffect(() => {
+    if (!details?.homeworld) return;
+
+    const loadHomeworld = async () => {
+      if (typeof details.homeworld !== "string") return;
+
+      const result = await fetchRelatedResources([details.homeworld]);
+      setHomeworld(result[0]);
+    };
+
+    loadHomeworld();
+  }, [details]);
+
+  /*
+   Navigation handler
+  */
   const handleNavigation = (url: string) => {
     const { category, id } = parseSwapiUrl(url);
 
@@ -88,11 +113,26 @@ const DetailView: React.FC<DetailViewProps> = ({
           <div className={styles.detailsBlock}>
             <h3>Details</h3>
 
-            {fields.map(({ label, key }) => (
-              <p key={key}>
-                <strong>{label}:</strong> {details[key]}
-              </p>
-            ))}
+            {fields.map(({ label, key }) => {
+              const value = details[key];
+
+              return (
+                <p key={key} className={key === "homeworld" ? styles.homeworld : ""}>
+                  <strong>{label}:</strong>{" "}
+                  {key === "homeworld" && homeworld ? (
+                    <Chips
+                      title={homeworld.name}
+                      onClick={() => handleNavigation(homeworld.url)}
+                      disabled={false}
+                    />
+                  ) : typeof value === "string" || typeof value === "number" ? (
+                    value
+                  ) : (
+                    "-"
+                  )}
+                </p>
+              );
+            })}
           </div>
 
           {description && (
