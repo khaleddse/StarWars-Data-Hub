@@ -6,6 +6,6 @@ export interface NavLink {
 export const navLinks: NavLink[] = [
   { name: "Star Wars", path: "/" },
   { name: "Filme", path: "/films" },
-  { name: "Charaktere", path: "/characters" },
+  { name: "Charaktere", path: "/people" },
   { name: "Planeten", path: "/planets" },
 ];

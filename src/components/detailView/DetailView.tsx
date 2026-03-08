@@ -1,0 +1,157 @@
+import React, { useEffect, useMemo, useState } from "react";
+import styles from "./DetailView.module.css";
+import Chips from "../ui/Chips";
+import { useNavigate } from "react-router-dom";
+import { type Category, type DetailViewProps } from "../../types";
+import { CATEGORY_FIELDS } from "./DetailViewConfig";
+import { fetchRelatedResources, getArrayKeys, parseSwapiUrl } from "../../helper/utils";
+
+
+
+const ALLOWED_NAVIGATION: Category[] = ["people", "planets", "films"];
+
+const DetailView: React.FC<DetailViewProps> = ({
+  category,
+  title,
+  subtitle,
+  description,
+  details,
+  image,
+}) => {
+  const navigate = useNavigate();
+
+  const [relatedData, setRelatedData] = useState<Record<string, any[]>>({});
+  const [loading, setLoading] = useState(false);
+
+  const relatedKeys = useMemo(() => getArrayKeys(details), [details]);
+
+  useEffect(() => {
+    if (!relatedKeys.length) return;
+
+    let cancelled = false;
+
+    const loadRelated = async () => {
+      setLoading(true);
+
+      try {
+        const entries = await Promise.all(
+          relatedKeys.map(async (key) => {
+            const urls = details[key];
+            const data = await fetchRelatedResources(urls as string[]);
+            return [key, data];
+          })
+        );
+
+        if (!cancelled) {
+          setRelatedData(Object.fromEntries(entries));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadRelated();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [relatedKeys, details]);
+
+  const handleNavigation = (url: string) => {
+    const { category, id } = parseSwapiUrl(url);
+
+    if (!ALLOWED_NAVIGATION.includes(category as Category)) return;
+
+    navigate(`/${category}/${id}`);
+  };
+
+  const fields = CATEGORY_FIELDS[category as Category] || [];
+
+  return (
+    <div className={styles.container}>
+      {/* Header */}
+
+      <header className={styles.header}>
+        <p className={styles.category}>{category}</p>
+
+        <div className={styles.line} />
+
+        <h1 className={styles.title}>{title}</h1>
+
+        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+      </header>
+
+      {/* Main grid */}
+
+      <div className={styles.grid}>
+        <section className={styles.textContent}>
+          <div className={styles.detailsBlock}>
+            <h3>Details</h3>
+
+            {fields.map(({ label, key }) => (
+              <p key={key}>
+                <strong>{label}:</strong> {details[key]}
+              </p>
+            ))}
+          </div>
+
+          {description && (
+            <div className={styles.description}>
+              <p>{description}</p>
+            </div>
+          )}
+        </section>
+
+        <section className={styles.visualContent}>
+          {image && (
+            <div className={styles.imageCard}>
+              <img
+                src={image}
+                alt={title}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    "https://placehold.co/400x600?text=Image+Blocked";
+                }}
+              />
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* Related data */}
+
+      {loading && (
+        <div className={styles.relatedDataContainer}>Loading...</div>
+      )}
+
+      {!loading && Object.keys(relatedData).length > 0 && (
+        <div className={styles.relatedDataContainer}>
+          {Object.entries(relatedData).map(([key, items]) => (
+            <div key={key}>
+              <h3>{key.toUpperCase()}</h3>
+
+              <div className={styles.chipList}>
+                {items.map((item, index) => {
+                  const clickable = ALLOWED_NAVIGATION.includes(
+                    parseSwapiUrl(item.url).category as Category
+                  );
+
+                  return (
+                    <Chips
+                      key={index}
+                      title={item.name || item.title}
+                      onClick={() => handleNavigation(item.url)}
+                      disabled={!clickable}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default DetailView;

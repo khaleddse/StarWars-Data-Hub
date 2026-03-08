@@ -1,14 +1,17 @@
 import React from 'react';
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
-import MoviesGrid from './components/CardGrid/CardGrid';
+import AppRoutes from './routes';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 function App() {
   return (
-    <div className="App">
-      <Navbar />
-      <MoviesGrid />
-    </div>
+    <Router>
+      <div className="App">
+        <Navbar />
+        <AppRoutes />
+      </div>
+    </Router>
   );
 }
 

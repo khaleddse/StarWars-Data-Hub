@@ -1,0 +1,23 @@
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background: #f0f0f0;
+  padding: 6px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.chip:hover {
+  background: #ddd;
+}
+.disabledChip {
+    cursor: default;
+    opacity: 0.7;
+    background-color: #e0e0e0;
+}
