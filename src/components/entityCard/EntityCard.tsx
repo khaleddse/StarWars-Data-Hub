@@ -1,7 +1,7 @@
-import styles from "./Card.module.css";
+import styles from "./EntityCard.module.css";
 import { useNavigate } from "react-router-dom";
 
-type MovieCardProps = {
+type EntityCardProps = {
   title: string;
   director: string;
   producers: string;
@@ -10,14 +10,14 @@ type MovieCardProps = {
   detailUrl: string;
 };
 
-export default function MovieCard({
+export default function EntityCard({
   title,
   director,
   producers,
   releaseDate,
   image,
   detailUrl
-}: MovieCardProps) {
+}: EntityCardProps) {
   const navigate = useNavigate();
   const splitedUrl = detailUrl.split('/').filter(Boolean).pop() || ''
   return (
