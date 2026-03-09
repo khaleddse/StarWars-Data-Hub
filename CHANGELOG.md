@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.2](https://github.com/khaleddse/StarWars-Data-Hub/compare/v0.0.1...v0.0.2) (2026-03-09)
+
+
+### Features
+
+* related data in detail view should call 5 api max to get relatedData, adding hasmore chip to related data has more than 5 api's ([809ad58](https://github.com/khaleddse/StarWars-Data-Hub/commit/809ad584766644503a8a1e2c80d906fa45ff0231))
+
 ### 0.0.1 (2026-03-08)
 
 
