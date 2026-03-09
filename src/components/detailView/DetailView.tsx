@@ -11,6 +11,7 @@ import {
 } from "../../helper/utils";
 
 const ALLOWED_NAVIGATION: Category[] = ["people", "planets", "films"];
+const MAX_RELATED_ITEMS = 5;
 
 const DetailView: React.FC<DetailViewProps> = ({
   category,
@@ -22,15 +23,15 @@ const DetailView: React.FC<DetailViewProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  const [relatedData, setRelatedData] = useState<Record<string, any[]>>({});
+  const [relatedData, setRelatedData] = useState<
+    Record<string, { data: any[]; hasMore: boolean }>
+  >({});
   const [homeworld, setHomeworld] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   const relatedKeys = useMemo(() => getArrayKeys(details), [details]);
 
-  /*
-   Fetch related array resources (films, species, etc.)
-  */
+  // fetch related array resources Only fetch first MAX_RELATED_ITEMS
   useEffect(() => {
     if (!relatedKeys.length) return;
 
@@ -42,9 +43,19 @@ const DetailView: React.FC<DetailViewProps> = ({
       try {
         const entries = await Promise.all(
           relatedKeys.map(async (key) => {
-            const urls = details[key];
-            const data = await fetchRelatedResources(urls as string[]);
-            return [key, data];
+            const urls = details[key] as string[];
+
+            const limitedUrls = urls.slice(0, MAX_RELATED_ITEMS);
+
+            const data = await fetchRelatedResources(limitedUrls);
+
+            return [
+              key,
+              {
+                data,
+                hasMore: urls.length > MAX_RELATED_ITEMS,
+              },
+            ];
           })
         );
 
@@ -63,9 +74,7 @@ const DetailView: React.FC<DetailViewProps> = ({
     };
   }, [relatedKeys, details]);
 
-  /*
-   Fetch homeworld (single resource)
-  */
+  //Fetch homeworld (single resource)
   useEffect(() => {
     if (!details?.homeworld) return;
 
@@ -79,9 +88,6 @@ const DetailView: React.FC<DetailViewProps> = ({
     loadHomeworld();
   }, [details]);
 
-  /*
-   Navigation handler
-  */
   const handleNavigation = (url: string) => {
     const { category, id } = parseSwapiUrl(url);
 
@@ -117,7 +123,10 @@ const DetailView: React.FC<DetailViewProps> = ({
               const value = details[key];
 
               return (
-                <p key={key} className={key === "homeworld" ? styles.homeworld : ""}>
+                <p
+                  key={key}
+                  className={key === "homeworld" ? styles.homeworld : ""}
+                >
                   <strong>{label}:</strong>{" "}
                   {key === "homeworld" && homeworld ? (
                     <Chips
@@ -166,28 +175,34 @@ const DetailView: React.FC<DetailViewProps> = ({
 
       {!loading && Object.keys(relatedData).length > 0 && (
         <div className={styles.relatedDataContainer}>
-          {Object.entries(relatedData).map(([key, items]) => (
-            <div key={key}>
-              <h3>{key.toUpperCase()}</h3>
+          {Object.entries(relatedData).map(([key, value]) => {
+            const { data: items, hasMore } = value;
 
-              <div className={styles.chipList}>
-                {items.map((item, index) => {
-                  const clickable = ALLOWED_NAVIGATION.includes(
-                    parseSwapiUrl(item.url).category as Category
-                  );
+            return (
+              <div key={key}>
+                <h3>{key.toUpperCase()}</h3>
 
-                  return (
-                    <Chips
-                      key={index}
-                      title={item.name || item.title}
-                      onClick={() => handleNavigation(item.url)}
-                      disabled={!clickable}
-                    />
-                  );
-                })}
+                <div className={styles.chipList}>
+                  {items.map((item, index) => {
+                    const clickable = ALLOWED_NAVIGATION.includes(
+                      parseSwapiUrl(item.url).category as Category
+                    );
+
+                    return (
+                      <Chips
+                        key={index}
+                        title={item.name || item.title}
+                        onClick={() => handleNavigation(item.url)}
+                        disabled={!clickable}
+                      />
+                    );
+                  })}
+
+                  {hasMore && <Chips title="..." disabled />}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
